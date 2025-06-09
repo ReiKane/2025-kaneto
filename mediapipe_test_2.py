@@ -18,13 +18,14 @@ hands = mp_hands.Hands(
     min_tracking_confidence=0.7     # 追跡信頼度
 )
 
-cap = cv2.VideoCapture("../test_kamui.mp4")   # カメラのID指定
+cap = cv2.VideoCapture(0)   # カメラのID指定
 if cap.isOpened():
     while True:
         # カメラから画像取得
         success, img = cap.read()
         if not success:
             continue
+        img = cv2.flip(img, 1)          # 画像を左右反転
         img_h, img_w, _ = img.shape     # サイズ取得
 
         # 検出処理の実行
@@ -70,7 +71,6 @@ if cap.isOpened():
                 # - テキスト出力
                 for cnt, text in enumerate(hand_texts):
                     cv2.putText(img, text, (lm_x, lm_y + 10 * cnt), font, 0.3, lm_c, 1)
-        cv2.namedWindow("MediaPipe Hands", cv2.WINDOW_NORMAL)
 
         # 画像の表示
         cv2.imshow("MediaPipe Hands", img)
