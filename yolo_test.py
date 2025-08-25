@@ -19,13 +19,13 @@ while True:
     sobel_x = cv2.convertScaleAbs(sobel_x, alpha = 0.5)
     sobel_y = cv2.convertScaleAbs(sobel_y, alpha = 0.5)
     sobel_xy = cv2.add(sobel_x, sobel_y)
-    _, sobel_xy = cv2.threshold(sobel_xy, 182, 255, cv2.THRESH_BINARY)
+    _, sobel_xy = cv2.threshold(sobel_xy, 150, 255, cv2.THRESH_BINARY)
 
-    length = 100
+    length = 20
     gap = 5
     lines = cv2.HoughLinesP(sobel_xy.astype(np.uint8), 1, np.pi/180, 100, length, gap)
     for x1,y1,x2,y2 in lines.squeeze():
-        if(np.sqrt((x2-x1)**2 + (y2-y1)**2) < 100):
+        if(abs(x1-x2) <= 3):
             cv2.line(sobel_xy,(x1,y1),(x2,y2),(0,255,0),2)
     
     results = model.track(frame, classes=[1], max_det=7, persist=True)
