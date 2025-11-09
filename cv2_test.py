@@ -1,8 +1,6 @@
-from ultralytics import YOLO
 import cv2
 import numpy as np
 
-model = YOLO("runs/detect/train4/weights/best.pt")
 cap = cv2.VideoCapture("../piano_test_3.mp4")
 frames = []
 
