@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-cap = cv2.VideoCapture("../piano_test_3.mp4")
+cap = cv2.VideoCapture("../piano_test_4.mp4")
 bg = cv2.imread("background.jpg")
 bg = cv2.cvtColor(bg, cv2.COLOR_BGR2GRAY)
 bg = cv2.GaussianBlur(bg, (3,3), 0)

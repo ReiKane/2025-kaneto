@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-cap = cv2.VideoCapture("../piano_test_3.mp4")
+cap = cv2.VideoCapture("../piano_test_4.mp4")
 frames = []
 
 while True:
