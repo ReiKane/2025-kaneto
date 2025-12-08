@@ -4,11 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 1. 画像を読み込み
-img = cv2.imread('background.jpg')
+img = cv2.imread('background_2.jpg')
 
 # 半分にして鍵盤の部分を取り出す
 w_orig, h_orig = img.shape[1], img.shape[0]
-img_bottom = img[int(h_orig/2):h_orig, 0:w_orig]
+#img_bottom = img[int(h_orig/2):h_orig, 0:w_orig]
+img_bottom = img[int(4*h_orig/5):h_orig, 0:w_orig]
 
 gray = cv2.cvtColor(img_bottom, cv2.COLOR_BGR2GRAY)
 # gray = cv2.GaussianBlur(gray, (5,5), 1)  # [HK]Sobelでもぼかすので外す
@@ -19,7 +20,7 @@ plt.plot(h_proj)
 plt.show()
 
 # 黒鍵＋白鍵と、白鍵のみに分けるために閾値を設定
-thresh_wkey = 150
+thresh_wkey = 200
 # 閾値を越えるy座標の範囲を見つける
 wkeys = np.where(h_proj > thresh_wkey)[0]
 wkey_range = (wkeys[0], wkeys[-1])
@@ -47,7 +48,7 @@ plt.show()
 from scipy.signal import find_peaks
 inverted_v_proj = -v_proj_wkey
 print("Mean of vertical projection:", np.mean(v_proj_wkey))
-min_dist_between_keys = 8  # 鍵盤同士の最小ピクセル距離（★ここは画像に合わせて要調整）
+min_dist_between_keys = 20  # 鍵盤同士の最小ピクセル距離（★ここは画像に合わせて要調整）
 peaks, properties = find_peaks(inverted_v_proj, height= -np.mean(v_proj_wkey), distance=min_dist_between_keys)
 print(peaks)
 # ピークのプロット
@@ -114,7 +115,7 @@ from ultralytics import YOLO
 model = YOLO("runs/detect/train4/weights/best.pt")
 
 # 動画読込
-cap = cv2.VideoCapture("../piano_test_3.mp4")
+cap = cv2.VideoCapture("../piano_test_4.mp4")
 
 while True:
     ret, frame = cap.read()
@@ -123,4 +124,6 @@ while True:
         break
 
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+cv2.destroyAllWindows()
 

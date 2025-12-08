@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-cap = cv2.VideoCapture("../piano_test_4.mp4")
+cap = cv2.VideoCapture("../piano_test_5.mp4")
 frames = []
 
 while True:
@@ -22,4 +22,4 @@ cv2.imshow("Background", background)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-cv2.imwrite("background.jpg", background)
+cv2.imwrite("background_2.jpg", background)
