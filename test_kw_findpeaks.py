@@ -111,19 +111,19 @@ cv2.imshow('Detected White Key Boundaries', img_with_lines)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
-from ultralytics import YOLO
-model = YOLO("runs/detect/train4/weights/best.pt")
+#from ultralytics import YOLO
+#model = YOLO("runs/detect/train4/weights/best.pt")
 
 # 動画読込
-cap = cv2.VideoCapture("../piano_test_4.mp4")
+#cap = cv2.VideoCapture("../piano_test_4.mp4")
 
-while True:
-    ret, frame = cap.read()
-    if not ret:
-        print("Error: Failed to capture image.")
-        break
+#while True:
+    #ret, frame = cap.read()
+    #if not ret:
+        #print("Error: Failed to capture image.")
+        #break
 
-    frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-cv2.destroyAllWindows()
+#cv2.destroyAllWindows()
 
