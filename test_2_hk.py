@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 from enum import Enum
+import csv
 
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
@@ -176,6 +177,14 @@ while cap.isOpened() and (cap.get(cv2.CAP_PROP_POS_FRAMES) < tlim[1]):
 # %%
 cap.release()
 cv2.destroyAllWindows()
+
+with open("press_log.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["time_sec", "key_index"])
+    for t, keys in enumerate(press_log):
+        for i, pressed in enumerate(keys):
+            if pressed:
+                writer.writerow([t / 60, i])
 
 # %%
 # feature_logの各キーごとの配列をnumpy配列に変換
