@@ -10,6 +10,16 @@ from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
 
+import mediapipe as mp
+
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(
+    static_image_mode=False,
+    max_num_hands=2,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
+
 # 背景読み込み
 bg_orig = cv2.imread("background_2.jpg")
 H, W, _ = bg_orig.shape
@@ -31,6 +41,8 @@ key_boundaries = [29, 66, 103, 141, 179, 216, 254, 292, 330, 368, 405, 443, 480,
 
 n_keys = len(key_boundaries) - 1
 print(f'Number of keys detected: {n_keys}')
+
+prev_press_states = [False] * n_keys
 
 # 鍵盤のy座標範囲を指定
 # key_ylim = [830, 1060]  # 白鍵と黒鍵両方
@@ -126,6 +138,19 @@ while cap.isOpened() and (cap.get(cv2.CAP_PROP_POS_FRAMES) < tlim[1]):
         press_states = []
         for k in range(len(key_boundaries) - 1):
             x1, x2 = key_boundaries[k], key_boundaries[k + 1]
+            key_center_x = (x1 + x2) // 2
+            key_center_y = key_ylim[1]  # 鍵盤手前側
+            def closest_finger(fingers, cx, cy):
+                return min(
+                    fingers,
+                    key=lambda f: (f["x"] - cx)**2 + (f["y"] - cy)**2
+                )
+
+            pressed_finger = closest_finger(
+                fingertips, key_center_x, key_center_y
+            )
+
+
             # key_roi_1 = roi[:, x1:x1+1]  #左端
             # key_roi_2 = roi[:, x2:x2+1]  #右端
             # mean_val = np.mean(key_roi_1 + key_roi_2)
@@ -155,17 +180,49 @@ while cap.isOpened() and (cap.get(cv2.CAP_PROP_POS_FRAMES) < tlim[1]):
                 # print(f'Key {k}: GMM label = {label}')
                 pressed = (label != 0)  # ラベル0をOFF，それ以外をONと仮定
             elif mode == Mode.THRESHOLDING:
-                pressed = np.mean(feature) > threshold  # 閾値判定
+                pressed = np.mean(feature) > threshold
+                pressed_onset = pressed and not prev_press_states[k]  # 閾値判定
+                if pressed_onset:
+                    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    results = hands.process(rgb)
+
+                    if results.multi_hand_landmarks:
+                        h, w, _ = frame.shape
+
+                        fingertips = []
+                        for hand_landmarks in results.multi_hand_landmarks:
+                            for idx in [4, 8, 12, 16, 20]:
+                                lm = hand_landmarks.landmark[idx]
+                                px = int(lm.x * w)
+                                py = int(lm.y * h)
+
+                                fingertips.append({
+                                    "key": k,
+                                    "landmark_id": idx,
+                                    "x": px,
+                                    "y": py,
+                                    "z": lm.z
+                                })
             
             # 押されている鍵盤を赤枠で表示
             if mode == Mode.CLASSIFICATION or mode == Mode.THRESHOLDING:
                 press_states.append(pressed)
                 color = (0, 0, 255) if pressed else (255, 255, 255)
                 cv2.rectangle(frame, (x1, key_ylim[0]), (x2, key_ylim[1]), color, 2)
+            
+            prev_press_states[k] = pressed
 
         #ログ記録(今後に向けて出せるようにしています)
         if mode == Mode.CLASSIFICATION or mode == Mode.THRESHOLDING:
             press_log.append(press_states)
+            press_log.append({
+                "frame": int(cap.get(cv2.CAP_PROP_POS_FRAMES)),
+                "key": k,
+                "finger_id": pressed_finger["landmark_id"],
+                "x": pressed_finger["x"],
+                "y": pressed_finger["y"],
+                "z": pressed_finger["z"]
+            })
             #表示
             frame = cv2.resize(frame, (W//2, H//2))
             cv2.imshow('frame', frame)

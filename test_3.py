@@ -49,12 +49,16 @@ def build_events_from_csv(csv_path, fps):
     frame_dt = 1.0 / fps
 
     events = []  # (time_sec, type, midi_note)
+    MIN_DURATION = 0.1
 
     for key, times in key_times.items():
         times.sort()
         intervals = times_to_intervals(times, frame_dt)
 
         for start, end in intervals:
+            duration = end - start
+            if duration < MIN_DURATION:
+                continue
             note = key_to_midi_note(key)
             events.append((start, "on", note))
             events.append((end, "off", note))
@@ -91,4 +95,4 @@ def write_midi(events, output_path="output.mid"):
 
 fps = 60  # 動画と同じFPS
 events = build_events_from_csv("press_log.csv", fps)
-write_midi(events, "from_csv.mid")
+write_midi(events, "from_csv_1.mid")
