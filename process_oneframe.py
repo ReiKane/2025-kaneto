@@ -8,16 +8,16 @@ import matplotlib.pyplot as plt
 RAWFRAME_IDIR = "raw_frames/"
 
 #エッジの座標(別のコードで取得)
-key_boundaries = [29, 66, 103, 141, 179, 216, 254, 292, 330, 368, 405, 443, 480, 517, 554, 592, 629, 665, 702, 739, 775, 812, 849, 885, 922, 958, 995, 1032, 1069, 1105, 1142, 1178, 1215, 1251, 1288, 1325, 1362, 1398, 1435, 1472, 1509, 1546, 1583, 1621, 1658, 1695, 1733, 1770, 1807, 1844, 1880, 1903]
+key_boundaries = [11, 46, 78, 113, 148, 184, 219, 255, 290, 326, 361, 396, 431, 467, 502, 538, 573, 608, 643, 678, 714, 749, 784, 820, 855, 890, 925, 960, 996, 1031, 1066, 1101, 1136, 1171, 1207, 1242, 1277, 1313, 1348, 1383, 1418, 1453, 1488, 1523, 1559, 1594, 1629, 1664, 1700, 1735, 1771, 1806, 1841]
 
 # %%
-bg_orig = cv2.imread("background_2.jpg")
+bg_orig = cv2.imread("background_4.jpg")
 print("Original background shape:", bg_orig.shape)
 
 # frame_D4off = 114
 # frame_D4on = 139
-frame_D4off = 3142
-frame_D4on = 3162
+frame_D4off = 1255
+frame_D4on = 1306
 img_on_orig = cv2.imread(f"{RAWFRAME_IDIR}/frame_{frame_D4on:04d}.jpg")
 img_off_orig = cv2.imread(f"{RAWFRAME_IDIR}/frame_{frame_D4off:04d}.jpg")
 
@@ -25,7 +25,7 @@ xlim = [750, 1250]
 
 # ylim = [830, 1060]  # 830 + 230 = 1060
 # figsize = (8, 4)
-ylim = [987, 1060]  # 987 + 73 = 1060
+ylim = [784, 857]  # 987 + 73 = 1060
 figsize = (12, 3)
 
 # xオフセットを保存（座標変換用）

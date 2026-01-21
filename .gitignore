@@ -6,3 +6,4 @@ runs/detect/train2
 runs/detect/train3
 /datasets
 /datasets_2
+/raw_frames

@@ -18,7 +18,7 @@ hands = mp_hands.Hands(
     min_tracking_confidence=0.7     # 追跡信頼度
 )
 
-cap = cv2.VideoCapture("../test_kamui.mp4")   # カメラのID指定
+cap = cv2.VideoCapture("../piano_test_6.mp4")   # カメラのID指定
 if cap.isOpened():
     while True:
         # カメラから画像取得

@@ -4,12 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 1. 画像を読み込み
-img = cv2.imread('background_2.jpg')
+img = cv2.imread('background_4.jpg')
 
 # 半分にして鍵盤の部分を取り出す
 w_orig, h_orig = img.shape[1], img.shape[0]
 #img_bottom = img[int(h_orig/2):h_orig, 0:w_orig]
-img_bottom = img[int(4*h_orig/5):h_orig, 0:w_orig]
+img_bottom = img[int(2*h_orig/3):h_orig, 0:w_orig]
 
 gray = cv2.cvtColor(img_bottom, cv2.COLOR_BGR2GRAY)
 # gray = cv2.GaussianBlur(gray, (5,5), 1)  # [HK]Sobelでもぼかすので外す

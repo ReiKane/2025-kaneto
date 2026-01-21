@@ -24,7 +24,7 @@ hands = mp_hands.Hands(
 FINGERTIPS = [4, 8, 12, 16, 20]
 
 # 背景読み込み
-bg_orig = cv2.imread("background_2.jpg")
+bg_orig = cv2.imread("background_4.jpg")
 H, W, _ = bg_orig.shape
 
 # GRAY or red_channel
@@ -40,7 +40,7 @@ bg = cv2.GaussianBlur(bg, (3,3), 0)
 USE_TSNE = False
 
 #エッジの座標(別のコードで取得)
-key_boundaries = [29, 66, 103, 141, 179, 216, 254, 292, 330, 368, 405, 443, 480, 517, 554, 592, 629, 665, 702, 739, 775, 812, 849, 885, 922, 958, 995, 1032, 1069, 1105, 1142, 1178, 1215, 1251, 1288, 1325, 1362, 1398, 1435, 1472, 1509, 1546, 1583, 1621, 1658, 1695, 1733, 1770, 1807, 1844, 1880, 1903]
+key_boundaries = [46, 78, 113, 148, 184, 219, 255, 290, 326, 361, 396, 431, 467, 502, 538, 573, 608, 643, 678, 714, 749, 784, 820, 855, 890, 925, 960, 996, 1031, 1066, 1101, 1136, 1171, 1207, 1242, 1277, 1313, 1348, 1383, 1418, 1453, 1488, 1523, 1559, 1594, 1629, 1664, 1700, 1735, 1771, 1806, 1841]
 
 n_keys = len(key_boundaries) - 1
 print(f'Number of keys detected: {n_keys}')
@@ -50,9 +50,10 @@ active_notes = {}   # key -> {start_time, finger}
 midi_events = []
 finger_log = []
 
+
 # 鍵盤のy座標範囲を指定
 # key_ylim = [830, 1060]  # 白鍵と黒鍵両方
-key_ylim = [987, 1060]  # 白鍵のみ
+key_ylim = [784, 857]  # 白鍵のみ
 
 # モード定義
 class Mode(Enum):
@@ -70,7 +71,7 @@ mode = Mode.THRESHOLDING
 # mode = Mode.CHECK_ONLY
 
 # --- for THRESHOLDING ---
-threshold = 0.02  # 閾値判定用
+threshold = 0.04  # 閾値判定用
 
 # --- for TRAINING / CLASSIFICATION ---
 # どちらの特徴量を使うか
@@ -87,10 +88,10 @@ gmm_components = 2  # 押下・非押下の2クラス想定（3-6でも良いか
 # 処理するフレーム範囲
 # tlim = [0, 800]  # 前半避けた方がいい
 # tlim = [0, 300]  # 前半避けた方がいい
-tlim = [2980, 3734]
+tlim = [1499, 1750]
 
-fps = 60
-MIN_DURATION = 0.06
+fps = 25
+MIN_DURATION = 0.08
 BASE_MIDI_NOTE = 21
 ONSET_GRACE_FRAMES = 2
 
@@ -150,7 +151,6 @@ def build_white_key_midi_map(start_midi, n_keys):
         i += 1
     return midi_map
 
-
 # %%
 if mode == Mode.CLASSIFICATION:
     # 既存モデル読み込み
@@ -160,7 +160,7 @@ if mode == Mode.CLASSIFICATION:
         models = pickle.load(f)
 
 # 動画読み込み
-cap = cv2.VideoCapture("../piano_test_5.mp4")
+cap = cv2.VideoCapture("../piano_test_6.mp4")
 if cap.isOpened() == False:
     print("Error opening video file")
 else:
@@ -179,8 +179,25 @@ feature_log = [ feature0_log, feature1_log ]
 press_log = []
 press_count = {}
 
-WHITE_KEY_INTERVALS = [2, 2, 1, 2, 2, 2, 1]
+WHITE_KEY_INTERVALS = [2, 1, 2, 2, 1, 2, 2]
 WHITE_MIDI_MAP = build_white_key_midi_map(21, n_keys)
+
+ret, frame = cap.read()
+output_video_path = "visualization_output.mp4"
+fps = cap.get(cv2.CAP_PROP_FPS)
+if fps == 0:
+    fps = 30  # 保険
+
+h, w = frame.shape[:2]
+
+fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+video_writer = cv2.VideoWriter(
+    output_video_path,
+    fourcc,
+    fps,
+    (w, h)
+)
+
 
 while cap.isOpened() and (cap.get(cv2.CAP_PROP_POS_FRAMES) < tlim[1]):
     print(f'Processing frame {int(cap.get(cv2.CAP_PROP_POS_FRAMES))}')
@@ -293,7 +310,8 @@ while cap.isOpened() and (cap.get(cv2.CAP_PROP_POS_FRAMES) < tlim[1]):
                 press_states.append(pressed)
                 color = (0, 0, 255) if pressed else (255, 255, 255)
                 cv2.rectangle(frame, (x1, key_ylim[0]), (x2, key_ylim[1]), color, 2)
-        
+                
+        video_writer.write(frame)
         pprint.pprint(active_notes)
 
         #ログ記録(今後に向けて出せるようにしています)
@@ -310,6 +328,7 @@ while cap.isOpened() and (cap.get(cv2.CAP_PROP_POS_FRAMES) < tlim[1]):
 # %%
 cap.release()
 cv2.destroyAllWindows()
+video_writer.release()
 
 with open("finger_log.csv", "w", newline="") as f:
     writer = csv.DictWriter(
